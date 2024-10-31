@@ -28,5 +28,8 @@ df_datos.describe()
 df_datos.columns
 # %%
 for i in df_datos.columns:
-    print(df_datos[i].value_counts())
+    print(df_datos[i].value_counts(dropna=False))
+
+resultado = df_datos.groupby('spore-print-color',  dropna=False)['class'].value_counts()
+resultado
 # %%
