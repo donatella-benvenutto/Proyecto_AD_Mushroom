@@ -32,4 +32,28 @@ for i in df_datos.columns:
 
 resultado = df_datos.groupby('spore-print-color',  dropna=False)['class'].value_counts()
 resultado
+# %% analisis 'cap-color', 'stem-color', 'veil-color', 'season'
+columns_of_interest = ['cap-color', 'stem-color', 'veil-color', 'season']
+null_summary = df_datos[columns_of_interest].isnull().sum()
+print("Missing values per column:\n", null_summary)
+# Fill missing values in 'cap-color', 'stem-color', and 'season' with the mode
+df_datos['cap-color'] = df_datos['cap-color'].fillna(df_datos['cap-color'].mode()[0])
+df_datos['stem-color'] = df_datos['stem-color'].fillna(df_datos['stem-color'].mode()[0])
+df_datos['season'] = df_datos['season'].fillna(df_datos['season'].mode()[0])
+# Optionally, drop 'veil-color' if necessary
+#df_datos.drop(columns=['veil-color'], inplace=True)
+# Create dummy variables
+data_dummies = pd.get_dummies(df_datos[['cap-color', 'stem-color', 'season']], 
+                              prefix=['cap-color', 'stem-color', 'season'])
+
+# Combine dummies with the original data if desired
+df_datos = pd.concat([df_datos, data_dummies], axis=1) # queremos modificar el original
+# Verify no missing values in the transformed data
+print("Missing values after imputation:\n", df_datos[columns_of_interest].isnull().sum())
+
+# Preview the first few rows of the dummy variables
+print(data_dummies.head())
+# Drop original columns after dummies are created
+df_datos.drop(columns=['cap-color', 'stem-color', 'season'], inplace=True)# %%
+
 # %%
