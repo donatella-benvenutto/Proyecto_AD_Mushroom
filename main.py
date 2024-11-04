@@ -1,6 +1,7 @@
 #%% Importar datos
 
 import numpy as np
+from pprint import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.discriminant_analysis import StandardScaler
@@ -29,6 +30,61 @@ df_datos = pd.read_csv('Tema_14.csv')
 #%%[markdown]
 #Columnas
 df_datos.columns
+#%%[markdown]
+#### class
+columnas_a_revisar = ['class']
+df_datos = df_datos.dropna(subset=columnas_a_revisar)
+df_datos['class'].value_counts(dropna=False)
+
+#%%[markdown]
+#### cap-diameter
+df_datos['cap-diameter'] = pd.to_numeric(df_datos['cap-diameter'], errors='coerce')
+#count=0
+#for i in df_datos['cap-diameter']:
+#    if(i>= 623.40):
+#        count=count+1
+
+median_value = df_datos.loc[df_datos['cap-diameter'] < 623.40, 'cap-diameter'].median()
+df_datos.loc[df_datos['cap-diameter'] >= 623.40, 'cap-diameter'] = median_value
+
+
+
+#%%
+print(df_datos['cap-diameter'].value_counts(dropna=False))
+df_datos['cap-diameter'] = np.where(df_datos['cap-diameter'].isna(), '0', df_datos['cap-diameter'])
+
+#%%
+print(df_datos['cap-diameter'].value_counts(dropna=False))
+
+#%%[markdown]
+#### cap-shape
+df_datos['cap-shape'].value_counts(dropna=False)
+#%%
+columnas_a_revisar = ['cap-shape']
+df_datos = df_datos.dropna(subset=columnas_a_revisar)
+#%%
+df_datos['cap-shape'].value_counts(dropna=False)
+
+#%%[markdown]
+#### cap-surface
+df_datos = df_datos.drop(columns=['cap-surface'])
+
+#%%
+df_datos.columns
+
+#%%[markdown]
+#### cap-color
+df_datos['cap-color'].value_counts(dropna=False)
+#%%
+df_datos['cap-color'] = df_datos['cap-color'].fillna(df_datos['cap-color'].mode()[0])
+df_datos['cap-color'].value_counts(dropna=False)
+
+#%%[markdown]
+#### does-bruise-or-bleed
+df_datos['does-bruise-or-bleed'].value_counts(dropna=False)
+#%%
+df_datos['does-bruise-or-bleed'] = df_datos['does-bruise-or-bleed'].fillna(df_datos['does-bruise-or-bleed'].mode()[0])
+df_datos['does-bruise-or-bleed'].value_counts(dropna=False)
 
 #%%[markdown]
 #### gill-attachment
@@ -44,11 +100,66 @@ resultado
 # Lo primero que notamos es su gran cantidad de nulos, se podria completar por la moda.
 # Al fijarnos en su relacion con la variable obejtivo obtenemos que no hay nunguna tendencia importante, es decir, el gill-atachment no parece tener relacion directa con la clase
 # Es por esto que decidimos eliminar la columna
+#%%
+df_datos = df_datos.drop(columns=['gill-attachment'])
+#%%
+df_datos.columns
+
+#%%[markdown]
+#### gill-spacing
+
+df_datos['gill-spacing'].value_counts(dropna=False)
+
+#%%
+df_datos = df_datos.drop(columns=['gill-spacing'])
+#%%
+df_datos.columns
+#%%[markdown]
+#### gill-color
+df_datos['gill-color'].value_counts(dropna=False)
+#%%
+df_datos['gill-color'] = df_datos['gill-color'].fillna(df_datos['gill-color'].mode()[0])
+df_datos['gill-color'].value_counts(dropna=False)
+
+#%%[markdown]
+#### stem-height
+df_datos['stem-height'].value_counts(dropna=False)
+#%%
+df_datos['stem-height'] = pd.to_numeric(df_datos['stem-height'], errors='coerce')
+#count=0
+#for i in df_datos['stem-height']:
+#    if(i>= 339.20):
+#        count=count+1
+#count
+#%%
+median_value = df_datos.loc[df_datos['stem-height'] < 339.20, 'stem-height'].median()
+
+df_datos.loc[df_datos['stem-height'] >= 339.20, 'stem-height'] = median_value
+
+#%%
+df_datos['stem-height'] = df_datos['stem-height'].fillna(median_value)
+#%%[markdown]
+#### stem-width
+df_datos['stem-width'].value_counts(dropna=False)
+#%%
+df_datos['stem-width'] = pd.to_numeric(df_datos['stem-width'], errors='coerce')
+#count=0
+#for i in df_datos['stem-width']:
+#    if(i>= 1039.10):
+#        count=count+1
+#count
+#%%
+median_value = df_datos.loc[df_datos['stem-width'] < 1039.10, 'stem-width'].median()
+
+df_datos.loc[df_datos['stem-width'] >= 1039.10, 'stem-width'] = median_value
+
+#%%
+df_datos['stem-width'] = df_datos['stem-width'].fillna(median_value)
 #%%[markdown]
 #### stem-root
 # Esta variable separa en categorias la característica principal de la base del tallo: bulboso (b), hinchado (s), en forma de club (c), en forma de copa (u), igual (e), rizomorfos (z), enraizado (r).
-# %%
 
+# %%
 
 df_datos['stem-root'].value_counts(dropna=False)
 #%%[markdown]
@@ -66,6 +177,19 @@ plt.show()
 #%%[markdown]
 # Realizando una agrupacion en base al tipo de base de tallo y la clase (venenoso, comestible) se puede notar que a pesar de tener alguna relacion interesante, la mayoria de datos son nulos y no nos ayudan para el posterior modelo.
 # Por esto decidimos eliminar la columna
+#%%
+df_datos = df_datos.drop(columns=['stem-root'])
+
+#%%[markdown]
+#### stem-surface
+df_datos['stem-surface'].value_counts(dropna=False)
+#%%
+df_datos = df_datos.drop(columns=['stem-surface'])
+#%%[markdown]
+#### stem-color
+df_datos['stem-color'].value_counts(dropna=False)
+#%%
+df_datos['stem-color'] = df_datos['stem-color'].fillna(df_datos['stem-color'].mode()[0])
 #%%[markdown]
 #### veil-type
 # Esta variable indica que tipo de velo tiene el hongo: universal (u) y parcial (p)
@@ -85,7 +209,23 @@ plt.legend(title='Edibilidad', labels=['Edible', 'Poisonous'])
 plt.show()
 #%%[markdown]
 # En cuanto a su distribucion en comparacion con la clase se puede observar que no hay una relacion directa lo que nos da aun mas motivos para eliminar esta columna
+#%%
+df_datos = df_datos.drop(columns=['veil-type'])
+#%%[markdown]
+#### veil-color
 
+df_datos['veil-color'].value_counts(dropna=False)
+#%%
+df_datos = df_datos.drop(columns=['veil-color'])
+#%%[markdown]
+#### has-ring
+df_datos['has-ring'].value_counts(dropna=False)
+#%%
+tieneanillo = df_datos.groupby('has-ring',  dropna=False)['ring-type'].value_counts()
+tieneanillo
+#%%
+df_datos['has-ring'] = np.where(df_datos['has-ring'].isna() & (df_datos['ring-type'] == 'f'), 'f', df_datos['has-ring'])
+df_datos['has-ring'] = np.where(df_datos['has-ring'].isna(), 't', df_datos['has-ring'])
 #%%[markdown]
 #### ring-type
 # Esta variable cuenta forma y caracteristica del anillo de algunos tallos
@@ -110,23 +250,47 @@ tieneanillo = df_datos.groupby('ring-type',  dropna=False)['has-ring'].value_cou
 tieneanillo
 
 #%%[markdown]
+#### spore-print-color
+df_datos['spore-print-color'].value_counts(dropna=False)
+#%%
+df_datos = df_datos.drop(columns=['spore-print-color'])
+#%%[markdown]
+#### habitat
+df_datos['habitat'].value_counts(dropna=False)
+#%%
+df_datos['habitat'] = np.where(df_datos['habitat'].isna(), 'd', df_datos['habitat'])
+#%%[markdown]
+#### season
+df_datos['season'].value_counts(dropna=False)
+#%%
+df_datos['season'] = df_datos['season'].fillna(df_datos['season'].mode()[0])
+
+#%%
+df_datos.columns
+#%%[markdown]
 # Ahora pasaremos a dummies esta columna
-ring_type_dummies = pd.get_dummies(df_datos['ring-type'], prefix='ring_type', drop_first=False)
-# %% analisis 'cap-color', 'stem-color', 'veil-color', 'season'
-columns_of_interest = ['cap-color', 'stem-color', 'veil-color', 'season']
-resultado = df_datos.groupby('veil-color',  dropna=False)['class'].value_counts()
+#ring_type_dummies = pd.get_dummies(df_datos['ring-type'], prefix='ring_type', drop_first=False)
+# %% analisis nulos 'veil-color'
+
+resultado = df_datos.groupby('veil-type',  dropna=False)['class'].value_counts()
 resultado
 resultado.plot(kind='bar', stacked=True)
-plt.title('Distribución de Veil color por Edibilidad')
-plt.xlabel('Veil color')
+plt.title('Distribución de Stem Root por Edibilidad')
+plt.xlabel('Stem Root')
 plt.ylabel('Frecuencia')
 plt.legend(title='Edibilidad', labels=['Edible', 'Poisonous'])
 plt.show()
+
+
+# %% analisis 'cap-color', 'stem-color', 'veil-color', 'season'
+columns_of_interest = ['cap-color', 'stem-color', 'veil-color', 'season']
 null_summary = df_datos[columns_of_interest].isnull().sum()
 print("Missing values per column:\n", null_summary)
 # Fill missing values in 'cap-color', 'stem-color', and 'season' with the mode
 df_datos['cap-color'] = df_datos['cap-color'].fillna(df_datos['cap-color'].mode()[0])
+
 df_datos['stem-color'] = df_datos['stem-color'].fillna(df_datos['stem-color'].mode()[0])
+
 df_datos['season'] = df_datos['season'].fillna(df_datos['season'].mode()[0])
 # Optionally, drop 'veil-color' if necessary
 #df_datos.drop(columns=['veil-color'], inplace=True)
@@ -145,3 +309,22 @@ print(data_dummies.head())
 df_datos.drop(columns=['cap-color', 'stem-color', 'season'], inplace=True)# %%
 
 # %%
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
