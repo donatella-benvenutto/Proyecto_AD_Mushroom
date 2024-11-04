@@ -1,45 +1,47 @@
-
-#%%
 import pandas as pd
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelEncoder
 
-#%% Cargar el archivo CSV para su análisis
+# Cargar el archivo CSV
 file_path = 'Tema_14.csv'
 data = pd.read_csv(file_path)
 
-#%% Mostrar las primeras filas para una vista preliminar
-data.head()
-
-#%% Resumen de valores nulos y tipos de datos para cada columna
+# Preprocesamiento: Revisar valores nulos
 missing_values = data.isnull().sum()
-data_types = data.dtypes
+print("Nulos por columna:\n", missing_values)
 
-# Descripción estadística inicial para entender el rango y distribución de valores numéricos
-description = data.describe()
+# Eliminar filas solo si tienen valores nulos en ciertas columnas
+columnas_a_revisar = ['class']
+df_sin_nulos_columnas = data.dropna(subset=columnas_a_revisar).copy()  # Asegura que es una copia del DataFrame original
 
-missing_values, data_types, description
+# Verificar los nulos restantes
 
-#%%# 1. Eliminar columnas con más del 50% de datos faltantes, ya que será difícil imputarlas adecuadamente
-threshold = 0.5 * len(data)
-data_cleaned = data.dropna(thresh=threshold, axis=1)
+#print("Nulos después de eliminar filas en columnas específicas:\n", df_sin_nulos_columnas.isnull().sum())
 
-# 2. Imputar valores nulos restantes para columnas categóricas (rellenar con la moda)
-categorical_cols = data_cleaned.select_dtypes(include=['object']).columns
-imputer_cat = SimpleImputer(strategy='most_frequent')
-data_cleaned[categorical_cols] = imputer_cat.fit_transform(data_cleaned[categorical_cols])
+# Contar la cantidad de cada categoría en cada columna y mostrarla
+for column in ['cap-shape', 'cap-surface', 'spore-print-color']:
+    print(f"Cantidad de cada categoría en la columna {column}:")
+    print(data[column].value_counts())
+    print("\n")
 
-# 3. Imputar valores nulos restantes para columnas numéricas (rellenar con la mediana)
-numerical_cols = data_cleaned.select_dtypes(include=['float64', 'int64']).columns
-imputer_num = SimpleImputer(strategy='median')
-data_cleaned[numerical_cols] = imputer_num.fit_transform(data_cleaned[numerical_cols])
+# Imputación de valores nulos usando la moda para columnas categóricas
+data['cap-shape'] = data['cap-shape'].fillna(data['cap-shape'].mode()[0])
+data['cap-surface'] = data['cap-surface'].fillna(data['cap-surface'].mode()[0])
 
-# 4. Convertir variables categóricas a variables numéricas con Label Encoding
-encoder = LabelEncoder()
-for col in categorical_cols:
-    data_cleaned[col] = encoder.fit_transform(data_cleaned[col])
 
-# Verificar el resultado del pretratamiento
-data_cleaned.info(), data_cleaned.head()
+# Verificar nulos después de la imputación
+print("Nulos después de la imputación:\n", data.isnull().sum())
 
-#%%
+# Calcular y mostrar los porcentajes de "poisonous" y "edible" en las categorías seleccionadas
+for column in ['cap-shape', 'cap-surface', 'spore-print-color']:
+    print(f"Porcentajes de 'poisonous' y 'edible' en la columna {column}:")
+    porcentaje_clase = data.groupby([column, 'class']).size().unstack(fill_value=0)
+    porcentaje_clase = porcentaje_clase.div(porcentaje_clase.sum(axis=1), axis=0) * 100
+    print(porcentaje_clase)
+    print("\n")
+
+# Crear una tabla de solo dummies (sin combinarlas con el DataFrame principal)
+dummies_table = pd.get_dummies(data[['cap-shape', 'cap-surface', 'spore-print-color']], 
+                               columns=['cap-shape', 'cap-surface', 'spore-print-color'], 
+                               prefix=['cap_shape', 'cap_surface', 'spore_print_color'])
+
+# Mostrar el resultado de las primeras filas de la tabla de solo dummies
+print("Tabla de solo dummies:\n", dummies_table.head())
