@@ -114,6 +114,14 @@ tieneanillo
 ring_type_dummies = pd.get_dummies(df_datos['ring-type'], prefix='ring_type', drop_first=False)
 # %% analisis 'cap-color', 'stem-color', 'veil-color', 'season'
 columns_of_interest = ['cap-color', 'stem-color', 'veil-color', 'season']
+resultado = df_datos.groupby('veil-color',  dropna=False)['class'].value_counts()
+resultado
+resultado.plot(kind='bar', stacked=True)
+plt.title('Distribución de Veil color por Edibilidad')
+plt.xlabel('Veil color')
+plt.ylabel('Frecuencia')
+plt.legend(title='Edibilidad', labels=['Edible', 'Poisonous'])
+plt.show()
 null_summary = df_datos[columns_of_interest].isnull().sum()
 print("Missing values per column:\n", null_summary)
 # Fill missing values in 'cap-color', 'stem-color', and 'season' with the mode
