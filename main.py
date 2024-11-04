@@ -27,9 +27,32 @@ df_datos = pd.read_csv('Tema_14.csv')
 df_datos.describe()
 df_datos.columns
 # %%
-for i in df_datos.columns:
-    print(df_datos[i].value_counts(dropna=False))
+#for i in df_datos.columns:
+#    print(df_datos[i].value_counts(dropna=False))
+df_datos['gill-attachment'].value_counts(dropna=False)
 
-resultado = df_datos.groupby('spore-print-color',  dropna=False)['class'].value_counts()
+# %%
+resultado = df_datos.groupby('gill-attachment',  dropna=False)['class'].value_counts()
+resultado
+# %%
+
+df_datos['stem-root'].value_counts(dropna=False)
+
+# %%
+resultado = df_datos.groupby('stem-root',  dropna=False)['class'].value_counts()
+resultado
+# %%
+
+df_datos['veil-type'].value_counts(dropna=False)
+
+# %%
+resultado = df_datos.groupby('veil-type',  dropna=False)['class'].value_counts()
+resultado
+# %%
+
+df_datos['ring-type'].value_counts(dropna=False)
+
+# %%
+resultado = df_datos.groupby('ring-type',  dropna=False)['class'].value_counts()
 resultado
 # %%
