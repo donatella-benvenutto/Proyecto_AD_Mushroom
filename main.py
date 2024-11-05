@@ -270,6 +270,111 @@ df_datos.columns
 #%%[markdown]
 # Ahora pasaremos a dummies esta columna
 #ring_type_dummies = pd.get_dummies(df_datos['ring-type'], prefix='ring_type', drop_first=False)
+
+#%%
+dummies = pd.get_dummies(df_datos[['cap-shape', 'cap-color', 'does-bruise-or-bleed', 'gill-color','stem-color', 'has-ring', 'ring-type', 'habitat', 'season']])
+#%%
+dummies_df = pd.concat([dummies, df_datos['cap-diameter'], df_datos['stem-height'], df_datos['stem-width']], axis=1)
+#%% Normalizacion
+def normalizar_datos(data):
+    '''Normalizar datos'''
+    scaler = StandardScaler()
+    data = scaler.fit_transform(data)
+    return data
+
+def metricas_modelo(y_real, y_pred):
+    print('Accuracy: ', accuracy_score(y_real, y_pred))
+    print('Recall: ', recall_score(y_real, y_pred, average='macro'))
+    print('Precision: ', precision_score(y_real, y_pred, average='macro'))
+    print('F1 entrenamiento: ', f1_score(y_real, y_pred, average='macro'))
+    #matrix_confusion = confusion_matrix(y_test, y_pred)
+    #sns.heatmap(matrix_confusion, annot=True, fmt='d')
+    #plt.xlabel('Predicho')
+    #plt.ylabel('Real')
+    #plt.show()
+
+
+#%%
+y=df_datos['class'].map({'e': 0, 'p': 1})
+X_train, X_test, y_train, y_test= train_test_split(dummies_df, y, test_size=0.2, random_state=42)
+
+
+
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
+
+#%%
+X_train = normalizar_datos(X_train)
+X_val = normalizar_datos(X_val)
+X_test = normalizar_datos(X_test)
+#%%
+
+# %%
+##DecisionTree
+#########################################
+
+# %%
+clfTree = tree.DecisionTreeClassifier(random_state=42, max_depth=10)
+#clfTree = tree.DecisionTreeClassifier(random_state=42)
+clfTree = clfTree.fit(X_train, y_train)
+
+# %%
+
+#features = list(x.columns)
+#names=list(df_datos['Spectral Class'].unique())
+#plt.figure(figsize=(20,10))  # Set the figure size
+#plot_tree(clfTree, filled=True, feature_names=features, class_names=names, rounded=True)
+#plt.savefig('arbol_decision.png')  # Save the plot as a PNG file
+#plt.show()  # Display the plot
+
+
+# %%
+y_train_pred_tree = clfTree.predict(X_train)
+y_val_pred_tree = clfTree.predict(X_val)
+y_test_pred_tree = clfTree.predict(X_test)
+
+# %%  Metricas
+print("---------Entrenamiento---------")
+metricas_modelo(y_train, y_train_pred_tree)
+print("---------Validacion---------")
+metricas_modelo(y_val, y_val_pred_tree)
+print("---------Testeo---------")
+metricas_modelo(y_test, y_test_pred_tree)
+# %%
+matrix_confusion = confusion_matrix(y_test, y_test_pred_tree)
+sns.heatmap(matrix_confusion, annot=True, fmt='d')
+plt.xlabel('Predicho')
+plt.ylabel('Real')
+plt.show()
+
+# %%
+##KNN
+#########################################
+# %%
+clfKNN = KNeighborsClassifier(n_neighbors=5)
+# clfKNN = KNeighborsClassifier()
+clfKNN = clfKNN.fit(X_train, y_train)
+
+
+# %%
+y_train_pred_KNN = clfKNN.predict(X_train)
+y_val_pred_KNN = clfKNN.predict(X_val)
+y_test_pred_KNN = clfKNN.predict(X_test)
+
+
+# %%  Metricas
+print("---------Entrenamiento---------")
+metricas_modelo(y_train, y_train_pred_KNN)
+print("---------Validacion---------")
+metricas_modelo(y_val, y_val_pred_KNN)
+print("---------Testeo---------")
+metricas_modelo(y_test, y_test_pred_KNN)
+# %%
+matrix_confusion = confusion_matrix(y_test, y_test_pred_KNN)
+sns.heatmap(matrix_confusion, annot=True, fmt='d')
+plt.xlabel('Predicho')
+plt.ylabel('Real')
+plt.show()
 # %% analisis nulos 'veil-color'
 
 resultado = df_datos.groupby('veil-type',  dropna=False)['class'].value_counts()
